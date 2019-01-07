@@ -1,5 +1,3 @@
-/*------------------미완성코드-------------------------*/
-
 #include<stdio.h>
 #include<stdlib.h>
 #include<vector>
@@ -19,43 +17,50 @@ typedef struct node {
 
 node* nodeList;
 int* color;
-int* p;
 int vertex;
 
 vector<int> dfs_result;
-vector<int> bfs_result;
 stack<int> s;
 queue<int> q;
 
 void DFS(int start)
 {
 	int i;
-	node* tmp;
-	tmp = &nodeList[start];
-	tmp = tmp->next;
+	vector<int> tmpStack;
 
-	color[start] = GRAY;
-	while (1)
+	s.push(start);
+
+	while (!s.empty())
 	{
-		if (tmp == NULL)
-		{
-			break;
-		}
-
-		if (color[tmp->vertex] == WHITE)
-		{
-			p[tmp->vertex] = start;
-			DFS(tmp->vertex);
-		}
+		int now = s.top();	s.pop(); dfs_result.push_back(now); 
+		node* tmp;
+		tmp = &nodeList[now];
 		tmp = tmp->next;
+
+		while (1)//되는애들 다 넣기. 
+		{
+			if (tmp == NULL)
+				break;
+
+			if (color[tmp->vertex] == WHITE)
+			{
+				tmpStack.push_back(tmp->vertex);
+			}
+			tmp = tmp->next;
+		}
+		for (i = tmpStack.size() - 1; i >= 0; i--)	//작은것부터 방문하기 위해 스택 순서를 읽은 순서 거꾸로 넣음
+		{
+			s.push(tmpStack[i]);
+		}
+		tmpStack.clear();
+		color[now] = BLACK;
 	}
-	color[start] = BLACK;
-	//dfs_result.push_back(start);
 }
 
 void BFS(int start)
 {
 	q.push(start);
+	color[start] = GRAY;
 
 	while (!q.empty())
 	{
@@ -99,11 +104,16 @@ void insert(int ver1, int ver2)
 	}
 	else //첫 연결이 아니면
 	{
-		while (1)
+		while (1)//작은것부터 방문해야하므로 작은순서대로 넣는다.
 		{
 			if (tmp->next == NULL)
 			{
 				tmp->next = newNode;
+				break;
+			}
+			if (ver2 == tmp->next->vertex)
+			{
+				break;
 			}
 			if (ver2 > tmp->next->vertex)
 			{
@@ -132,20 +142,25 @@ void insert(int ver1, int ver2)
 	}
 	else //첫 연결이 아니면
 	{
-		while (1)
+		while (1)//작은것부터 방문해야하므로 작은순서대로 넣는다.
 		{
-			if (tmp->next == NULL)
+			if (tmp2->next == NULL)
 			{
-				tmp->next = newNode;
+				tmp2->next = newNode2;
+				break;
 			}
-			if (ver1 > tmp->next->vertex)
+			if (ver1 == tmp2->next->vertex)
 			{
-				tmp = tmp->next;
+				break;
+			}
+			if (ver1 > tmp2->next->vertex)
+			{
+				tmp2 = tmp2->next;
 			}
 			else
 			{
-				node* nextNode2 = tmp->next;
-				tmp->next = newNode2;
+				node* nextNode2 = tmp2->next;
+				tmp2->next = newNode2;
 				newNode2->next = nextNode2;
 				break;
 			}
@@ -163,14 +178,12 @@ int main()
 
 	nodeList = (struct node*)malloc(sizeof(node)*(vertex + 1));
 	color = (int*)malloc(sizeof(int)*(vertex + 1));
-	p = (int*)malloc(sizeof(int)*(vertex + 1));
-
+	
 	for (i = 0; i < vertex + 1; i++)
 	{
 		nodeList[i].vertex = i;
 		nodeList[i].next = NULL;
 		color[i] = WHITE;
-		p[i] = -1;
 	}
 
 	for (i = 0; i < edge; i++)
@@ -181,18 +194,22 @@ int main()
 
 	DFS(start);
 
-	for (i = dfs_result.size() - 1; i >= 0; i--)
+	int min = vertex;
+	if (dfs_result.size() < vertex)
+	{
+		min = dfs_result.size();
+	}
+	for (i = 0; i < min; i++)
 	{
 		printf("%d ", dfs_result[i]);
 	}
-
 	printf("\n");
+
+
 	for (i = 0; i < vertex + 1; i++)
 	{
 		color[i] = WHITE;
-		p[i] = -1;
 	}
-
 	BFS(start);
 
 
