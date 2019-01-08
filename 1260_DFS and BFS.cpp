@@ -19,7 +19,6 @@ node* nodeList;
 int* color;
 int vertex;
 
-vector<int> dfs_result;
 stack<int> s;
 queue<int> q;
 
@@ -32,28 +31,32 @@ void DFS(int start)
 
 	while (!s.empty())
 	{
-		int now = s.top();	s.pop(); dfs_result.push_back(now); 
+		int now = s.top();	s.pop();
 		node* tmp;
 		tmp = &nodeList[now];
 		tmp = tmp->next;
 
-		while (1)//되는애들 다 넣기. 
+		if (color[now] == WHITE)
 		{
-			if (tmp == NULL)
-				break;
-
-			if (color[tmp->vertex] == WHITE)
+			printf("%d ", now);
+			while (1)//되는애들 다 넣기. 
 			{
-				tmpStack.push_back(tmp->vertex);
+				if (tmp == NULL)
+					break;
+
+				if (color[tmp->vertex] == WHITE)
+				{
+					tmpStack.push_back(tmp->vertex);
+				}
+				tmp = tmp->next;
 			}
-			tmp = tmp->next;
+			for (i = tmpStack.size() - 1; i >= 0; i--)	//작은것부터 방문하기 위해 스택 순서를 읽은 순서 거꾸로 넣음
+			{
+				s.push(tmpStack[i]);
+			}
+			tmpStack.clear();
+			color[now] = BLACK;
 		}
-		for (i = tmpStack.size() - 1; i >= 0; i--)	//작은것부터 방문하기 위해 스택 순서를 읽은 순서 거꾸로 넣음
-		{
-			s.push(tmpStack[i]);
-		}
-		tmpStack.clear();
-		color[now] = BLACK;
 	}
 }
 
@@ -194,15 +197,6 @@ int main()
 
 	DFS(start);
 
-	int min = vertex;
-	if (dfs_result.size() < vertex)
-	{
-		min = dfs_result.size();
-	}
-	for (i = 0; i < min; i++)
-	{
-		printf("%d ", dfs_result[i]);
-	}
 	printf("\n");
 
 
